@@ -1,4 +1,4 @@
-version: '2'
+version: '3.7'
 services:
   deploymanager_itsjeffrocom_web:
     image: itsjeff/dev-php:7.4
@@ -6,16 +6,18 @@ services:
     volumes:
       - .:/var/www/html
       - ./environment/nginx/default:/etc/nginx/sites-enabled/default
-    environment:
-      - VIRTUAL_HOST=local.deploy-manager.itsjeffro.com
-      - VIRTUAL_PORT=80
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.deploy.rule=Host(`local.deploy-manager.itsjeffro.com`)
+      - traefik.http.routers.deploy.entrypoints=web
     env_file:
-    - .docker.env
-    extra_hosts:
-      - "local.deploy-manager.itsjeffro.com.:127.0.0.1"
-    network_mode: "bridge"
+      - .docker.env
+    networks:
+      - traefik-network
+      - deploy-network
     links:
       - deploymanager_itsjeffrocom_db
+
   deploymanager_itsjeffrocom_db:
     image: mysql:5.7
     container_name: deploymanager_itsjeffrocom_db
@@ -27,4 +29,13 @@ services:
       MYSQL_ROOT_PASSWORD: changeme
     ports:
       - "3306"
-    network_mode: "bridge"
+    networks:
+      - deploy-network
+
+networks:
+  deploy-network:
+    name: deploy-network
+    driver: bridge
+  traefik-network:
+    external:
+      name: traefik-network
