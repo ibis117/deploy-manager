@@ -1,12 +1,12 @@
 server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
+    listen 80;
+    listen [::]:80;
 
     root /var/www/html/public;
 
     index index.php index.html index.htm;
 
-    server_name _;
+    server_name local.deploy-manager.itsjeffro.com;
 
     location / {
         try_files $uri $uri/ /index.php?$query_string;
